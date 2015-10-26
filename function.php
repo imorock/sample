@@ -1162,7 +1162,6 @@ function insErrorLog ( $user_number, $session_number, $error_kiroku1, $error_kir
 			sqlReport1( "トレーニングサイトでのエラーを保存", "debug_msg1", $sql );
 		}
 	}
-
 }
 
 #insErrorLog ( $gakusei_number, "", "大項目総合訓練ログに終了日時を書き込み", mysql_error(), $sql, 0, 0 );

@@ -44,21 +44,25 @@ function getTrainingRirekiClassNoGakusei ( $gakusei_number, $shutudaikubun_numbe
 	global $_TEMP_TABLENAME;
 	global $_TEMP_FIELDNAME;
 
+	$func_res = array();
+	
 	$mysqli = my_mysqli_connect();
 
 	if( 1 ){
+	
+		$rireki_count = 0;
 
 		# 最大１年前まで
 		$min_date = date("Y-m-d H:i:s",strtotime("-1 year"));
 
 		if( 1 || $shutudaikubun_number == C_VALUE_SHUTUDAIKUBUN_KAISU ){
+		
+			$app_from = "";
+			$app_select = "";
 
 			switch ( $shutudaikubun_number ) {
 
 				case C_VALUE_SHUTUDAIKUBUN_BUNYA:
-
-					$app_from = "";
-					$app_select = "";
 
 					break;
 
@@ -161,6 +165,7 @@ function getTrainingRirekiClassNoGakusei ( $gakusei_number, $shutudaikubun_numbe
 
 							sqlReport1_2( $the_contents_of_execution, "debug_msg1 fblue", $sql. " 結果件数->". $mysqli->affected_rows );
 
+							$sql_limit = "";
 							if( $kensu > 0 ){
 								$sql_limit = " LIMIT {$startnum}, {$kensu}";
 							}
@@ -180,6 +185,7 @@ function getTrainingRirekiClassNoGakusei ( $gakusei_number, $shutudaikubun_numbe
 							switch ( $shutudaikubun_number ) {
 
 								case C_VALUE_SHUTUDAIKUBUN_BUNYA:
+								case C_VALUE_SHUTUDAIKUBUN_MARUBATU:
 
 									$app_select = ", m_bunya_name, m_komoku_name";
 									$app_from = "INNER JOIN ". C_TABLE_m_komoku. " USING( m_komoku_number ) INNER JOIN ". C_TABLE_m_bunya. " ON ". C_TABLE_m_komoku. ".m_bunya_number=". C_TABLE_m_bunya. ".m_bunya_number";
@@ -198,13 +204,6 @@ function getTrainingRirekiClassNoGakusei ( $gakusei_number, $shutudaikubun_numbe
 									$app_from = "INNER JOIN ". C_TABLE_m_bunya. " USING( m_bunya_number )";
 
 								break;
-
-								case C_VALUE_SHUTUDAIKUBUN_MARUBATU:
-
-
-									$app_select = ", m_bunya_name, m_komoku_name";
-									$app_from = "INNER JOIN ". C_TABLE_m_komoku. " USING( m_komoku_number ) INNER JOIN ". C_TABLE_m_bunya. " ON ". C_TABLE_m_komoku. ".m_bunya_number=". C_TABLE_m_bunya. ".m_bunya_number";
-									break;
 
 								default:
 									;
@@ -232,6 +231,7 @@ function getTrainingRirekiClassNoGakusei ( $gakusei_number, $shutudaikubun_numbe
 
 								sqlReport1_2( $the_contents_of_execution, "debug_msg1 fblue", $sql. " => ". $result->num_rows );
 								$i = 0;
+								$trainingrireki_ary = "";
 								while( $trainingrireki_row = $result->fetch_array(MYSQLI_ASSOC) ){
 
 									$trainingrireki_ary["training_counter"][$i] = $trainingrireki_row["training_counter"];
@@ -324,11 +324,12 @@ function makeKakomonBiko( $mondaikubun_number, $shutudaikubun_number, $mondai_nu
  * @param unknown_type $originaltext
  * @param unknown_type $imgdir
  * @param unknown_type $type
- * @param unknown_type $dummy3
  * @param unknown_type $dummy2
  * @param unknown_type $dummy1
  */
 function chikanZoomImageTag( $originaltext, $imgdir, $type, $filename, $dummy2, $dummy1 ){
+
+	$mondai_bun1 = "";
 
 	# 前側[IMG]で問題文を区切る
 	$mondai_kugiri_ary["frontside"] = explode("[IMG]", $originaltext);
@@ -397,7 +398,7 @@ function getBunya_One( $bunya_number, $dummy3, $dummy2, $dummy1 ){
 		/* 接続を閉じます */
 		$mysqli->close();
 
-		if( $bunya_ary ) return $bunya_ary;
+		if( isset( $bunya_ary ) ) return $bunya_ary;
 	}
 }
 /*
@@ -408,6 +409,7 @@ function getBunya_List( $jissikai_number, $dummy2, $dummy1 ){
 	$mysqli = my_mysqli_connect();
 
 	$app_where = 1;
+	$app_from = "";
 	if( $jissikai_number>0 ){
 
 		$app_from = " INNER JOIN ". C_TABLE_m_komoku. " USING( m_bunya_number ) INNER JOIN ". C_TABLE_m_kakomon. " USING( m_komoku_number ) ";
@@ -438,7 +440,7 @@ function getBunya_List( $jissikai_number, $dummy2, $dummy1 ){
 	/* 接続を閉じます */
 	$mysqli->close();
 
-	if( $bunyalist_ary ) return $bunyalist_ary;
+	if( isset( $bunyalist_ary ) ) return $bunyalist_ary;
 
 }
 
@@ -531,11 +533,8 @@ function mondaitablesetting( $shutudaikubun_number, $mondaikubun_number ){
  * 問題を取得する
  * Enter description here ...
  * @param unknown_type $mondai_number
- * @param unknown_type $nendo_number
- * @param unknown_type $ki_number
  * @param unknown_type $junjo
  * @param unknown_type $img_chikan_flag
- * @param unknown_type $dummy4
  * @param unknown_type $dummy3
  * @param unknown_type $dummy2
  * @param unknown_type $dummy1
@@ -617,7 +616,7 @@ function getMondai_One( $mondaikubun_number, $mondai_number, $jissikai_number, $
 		/* 接続を閉じます */
 		$mysqli->close();
 
-		if( $mondai_ary ) return $mondai_ary;
+		if( isset( $mondai_ary ) ) return $mondai_ary;
 
 	}
 }
@@ -653,7 +652,7 @@ function getMondaikubun_List( $dummy3, $dummy2, $dummy1 ){
 	/* 接続を閉じます */
 	$mysqli->close();
 
-	if( $mondaikubunlist_ary ) return $mondaikubunlist_ary;
+	if( isset( $mondaikubunlist_ary ) ) return $mondaikubunlist_ary;
 
 }
 
@@ -688,7 +687,7 @@ function getShutudaiType_List( $dummy3, $dummy2, $dummy1 ){
 	/* 接続を閉じます */
 	$mysqli->close();
 
-	if( $shutudaitypelist_ary ) return $shutudaitypelist_ary;
+	if( isset( $shutudaitypelist_ary ) ) return $shutudaitypelist_ary;
 
 }
 
@@ -752,7 +751,7 @@ function getJissikai_List( $dummy3, $dummy2, $dummy1 ){
 	/* 接続を閉じます */
 	$mysqli->close();
 
-	if( $jissikailist_ary ) return $jissikailist_ary;
+	if( isset( $jissikailist_ary ) ) return $jissikailist_ary;
 
 }
 
@@ -787,7 +786,7 @@ function getJissijikanntai_List( $dummy3, $dummy2, $dummy1 ){
 	/* 接続を閉じます */
 	$mysqli->close();
 
-	if( $jissijikanntai_ary ) return $jissijikanntai_ary;
+	if( isset( $jissijikanntai_ary ) ) return $jissijikanntai_ary;
 
 }
 
@@ -801,7 +800,8 @@ function getKomoku_List( $shutudaikubun_number, $bunya_number, $mondai_count, $d
 	global $_TEMP_TABLENAME;
 	global $_TEMP_FIELDNAME;
 
-	$mysqli = my_mysqli_connect();
+	$app_select = "";
+	$app_from = "";
 
 	$mysqli = my_mysqli_connect();
 
@@ -842,7 +842,7 @@ function getKomoku_List( $shutudaikubun_number, $bunya_number, $mondai_count, $d
 	/* 接続を閉じます */
 	$mysqli->close();
 
-	if( $komokulist_ary ) return $komokulist_ary;
+	if( isset( $komokulist_ary ) ) return $komokulist_ary;
 
 }
 
@@ -874,7 +874,7 @@ function getKomoku_One( $komoku_number, $dummy3, $dummy2, $dummy1 ){
 		/* 接続を閉じます */
 		$mysqli->close();
 
-		if( $komoku_ary ) return $komoku_ary;
+		if( isset( $komoku_ary ) ) return $komoku_ary;
 	}
 }
 
@@ -932,7 +932,6 @@ function textDecode ( $originaltext, $dummy3, $dummy2, $dummy1 ){
  * @param unknown_type $originaltext
  * @param unknown_type $imgdir
  * @param unknown_type $type
- * @param unknown_type $dummy3
  * @param unknown_type $dummy2
  * @param unknown_type $dummy1
  */
@@ -944,7 +943,7 @@ function chikanImageTag ( $originaltext, $imgdir, $type, $filename, $dummy2, $du
 
 	if( $type == 2 ){
 
-$replacetext .= <<< EOF
+$replacetext = <<< EOF
 <p style="margin-bottom: 0em;;"><a class="zoom1" style="width: auto;" onclick="javascript:submitModeSousin_One_blank( 'f1', 'mode', '{$filename}', '
 EOF;
 $replacetext .= $originaltext;

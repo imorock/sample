@@ -267,7 +267,7 @@ function getTrainingRirekiClassNoGakusei ( $gakusei_number, $shutudaikubun_numbe
 	/* 接続を閉じます */
 	$mysqli->close();
 
-	if( $trainingrireki_ary ) return $trainingrireki_ary;
+	if( isset( $trainingrireki_ary ) ) return $trainingrireki_ary;
 
 }
 
@@ -314,7 +314,7 @@ function makeKakomonBiko( $mondaikubun_number, $shutudaikubun_number, $mondai_nu
 	/* 接続を閉じます */
 	$mysqli->close();
 
-	if( $mondaicount_ary ) return $mondaicount_ary;
+	if( isset( $mondaicount_ary ) ) return $mondaicount_ary;
 
 }
 
@@ -330,11 +330,13 @@ function makeKakomonBiko( $mondaikubun_number, $shutudaikubun_number, $mondai_nu
 function chikanZoomImageTag( $originaltext, $imgdir, $type, $filename, $dummy2, $dummy1 ){
 
 	$mondai_bun1 = "";
+	$mondai_kugiri_ary = array();
 
 	# 前側[IMG]で問題文を区切る
 	$mondai_kugiri_ary["frontside"] = explode("[IMG]", $originaltext);
 
-	for ($i = 0; $i < count($mondai_kugiri_ary["frontside"]); $i++) {
+	$count = count($mondai_kugiri_ary["frontside"]);
+	for ($i = 0; $i < $count; $i++) {
 
 		# [/IMG]があれば処理
 		if( strstr( $mondai_kugiri_ary["frontside"][$i], '[/IMG]') ){
@@ -424,6 +426,8 @@ function getBunya_List( $jissikai_number, $dummy2, $dummy1 ){
 		sql_error1( $the_contents_of_execution, "debug_msg1", $sql. " => ". $mysqli->error. "<br />". __FUNCTION__. " File:". __FILE__. " Line:". __LINE__ );
 
 	}elseif( $result ){
+	
+		$bunyalist_ary = array();
 
 		sqlReport1_2( $the_contents_of_execution, "debug_msg1 fblue", $sql. " => ". $result->num_rows );
 		$i = 0;
@@ -636,8 +640,10 @@ function getMondaikubun_List( $dummy3, $dummy2, $dummy1 ){
 		sql_error1( $the_contents_of_execution, "debug_msg1", $sql. " => ". $mysqli->error. "<br />". __FUNCTION__. " File:". __FILE__. " Line:". __LINE__ );
 
 	}elseif( $result ){
-
+	
 		sqlReport1_2( $the_contents_of_execution, "debug_msg1 fblue", $sql. " => ". $result->num_rows );
+
+		$mondaikubunlist_ary = array();
 		$i = 0;
 		while( $mondaikubunlist_row = $result->fetch_array(MYSQLI_ASSOC) ){
 
@@ -673,6 +679,8 @@ function getShutudaiType_List( $dummy3, $dummy2, $dummy1 ){
 	}elseif( $result ){
 
 		sqlReport1_2( $the_contents_of_execution, "debug_msg1 fblue", $sql. " => ". $result->num_rows );
+		
+		$shutudaitypelist_ary = array();
 		$i = 0;
 		while( $shutudaitypelist_row = $result->fetch_array(MYSQLI_ASSOC) ){
 
@@ -716,7 +724,7 @@ function getJissijikanntai_One( $jissijikanntai_number, $dummy3, $dummy2, $dummy
 	/* 接続を閉じます */
 	$mysqli->close();
 
-	if( $jissikainame_ary ) return $jissikainame_ary;
+	if( isset( $jissikainame_ary ) ) return $jissikainame_ary;
 }
 
 /*
@@ -772,6 +780,8 @@ function getJissijikanntai_List( $dummy3, $dummy2, $dummy1 ){
 	}elseif( $result ){
 
 		sqlReport1_2( $the_contents_of_execution, "debug_msg1 fblue", $sql. " => ". $result->num_rows );
+		
+		$jissijikanntai_ary = array();
 		$i = 0;
 		while( $jissijikanntai_row = $result->fetch_array(MYSQLI_ASSOC) ){
 
@@ -826,6 +836,8 @@ function getKomoku_List( $shutudaikubun_number, $bunya_number, $mondai_count, $d
 	}elseif( $result ){
 
 		sqlReport1_2( $the_contents_of_execution, "debug_msg1 fblue", $sql. " => ". $result->num_rows );
+		
+		$komokulist_ary = array();
 		$i = 0;
 		while( $komokulist_row = $result->fetch_array(MYSQLI_ASSOC) ){
 
